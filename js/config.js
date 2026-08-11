@@ -24,7 +24,7 @@ const CONFIG = {
     // ============================================
     // PENGATURAN APLIKASI
     // ============================================
-
+APP_NAME: "Absensi Magang KAI",
     VERSION: "1.0.0",
 
     DEBUG: true

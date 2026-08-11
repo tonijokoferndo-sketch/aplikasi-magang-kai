@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Kamera QR Scanner</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #0f172a;
+            color: #f8fafc;
+        }
+
+        .card {
+            max-width: 700px;
+            margin: 20px auto;
+            background: #1e293b;
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+        }
+
+        h1 {
+            font-size: 22px;
+            margin-top: 0;
+        }
+
+        p {
+            line-height: 1.5;
+            color: #cbd5e1;
+        }
+
+        .actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin: 15px 0;
+        }
+
+        button {
+            border: none;
+            border-radius: 10px;
+            padding: 10px 14px;
+            cursor: pointer;
+            background: #2563eb;
+            color: white;
+            font-weight: 600;
+        }
+
+        button.secondary {
+            background: #64748b;
+        }
+
+        #reader {
+            width: 100%;
+            max-width: 500px;
+            min-height: 320px;
+            margin: 20px auto;
+            border-radius: 14px;
+            overflow: hidden;
+            background: #000;
+        }
+
+        #status {
+            margin-top: 12px;
+            font-size: 14px;
+            color: #fbbf24;
+        }
+
+        a {
+            color: #93c5fd;
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1>Test Kamera QR Scanner</h1>
+        <p>Halaman ini digunakan untuk memastikan kamera bisa terbuka dengan html5-qrcode sebelum dipakai di fitur absensi.</p>
+
+        <div class="actions">
+            <button id="startBtn">Mulai Kamera</button>
+            <button id="stopBtn" class="secondary">Stop Kamera</button>
+        </div>
+
+        <div id="reader"></div>
+        <div id="status">Siap.</div>
+        <p>Jika kamera tidak muncul, pastikan browser sudah mengizinkan akses kamera dan halaman dibuka lewat localhost atau HTTPS.</p>
+        <p><a href="index.html">Kembali ke aplikasi</a></p>
+    </div>
+
+    <script src="assets/lib/html5-qrcode.min.js"></script>
+    <script>
+        let qrScanner = null;
+
+        function setStatus(message) {
+            document.getElementById("status").textContent = message;
+        }
+
+        async function startScanner() {
+            if (!window.isSecureContext && location.hostname !== "localhost" && location.hostname !== "127.0.0.1") {
+                setStatus("Buka halaman ini lewat localhost atau HTTPS agar kamera bisa dipakai.");
+                return;
+            }
+
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                setStatus("Browser ini tidak mendukung akses kamera.");
+                return;
+            }
+
+            try {
+                const reader = document.getElementById("reader");
+                if (!reader) {
+                    setStatus("Elemen pemindai belum siap.");
+                    return;
+                }
+
+                qrScanner = new Html5Qrcode("reader");
+                const cameras = await Html5Qrcode.getCameras();
+
+                if (!cameras || cameras.length === 0) {
+                    setStatus("Kamera tidak ditemukan. Izinkan akses kamera di browser.");
+                    return;
+                }
+
+                await qrScanner.start(
+                    { facingMode: "environment" },
+                    {
+                        fps: 10,
+                        qrbox: { width: 250, height: 250 }
+                    },
+                    function(decodedText) {
+                        setStatus("Hasil scan: " + decodedText);
+                    },
+                    function() {}
+                );
+
+                setStatus("Kamera aktif. Arahkan ke QR Code.");
+            } catch (error) {
+                console.error(error);
+                setStatus("Gagal membuka kamera. Pastikan izin kamera sudah diberikan.");
+            }
+        }
+
+        async function stopScanner() {
+            try {
+                if (qrScanner) {
+                    await qrScanner.stop();
+                    await qrScanner.clear();
+                    qrScanner = null;
+                }
+            } catch (error) {
+                console.error(error);
+            }
+
+            setStatus("Kamera dihentikan.");
+        }
+
+        document.getElementById("startBtn").addEventListener("click", startScanner);
+        document.getElementById("stopBtn").addEventListener("click", stopScanner);
+    </script>
+</body>
+</html>

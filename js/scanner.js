@@ -17,7 +17,6 @@ function startScanner() {
     if (!user) {
 
         showLogin();
-
         return;
 
     }
@@ -59,7 +58,14 @@ function startScanner() {
     `;
 
 
-    loadQRScannerLibrary();
+    console.log(
+        "[SCANNER] startScanner dipanggil, menunggu DOM siap..."
+    );
+
+    setTimeout(
+        loadQRScannerLibrary,
+        500
+    );
 
 }
 
@@ -70,45 +76,66 @@ function startScanner() {
 
 function loadQRScannerLibrary() {
 
-    if (
-        typeof window.Html5Qrcode !==
-        "undefined"
-    ) {
+    console.log(
+        "[SCANNER] loadQRScannerLibrary called"
+    );
 
-        initializeScanner();
+    if (typeof Html5Qrcode === "undefined") {
 
-        return;
-
-    }
-
-
-    const script =
-        document.createElement("script");
-
-
-    script.src =
-        "https://unpkg.com/html5-qrcode@2.3.8/minified/html5-qrcode.min.js";
-
-
-    script.onload = function () {
-
-        initializeScanner();
-
-    };
-
-
-    script.onerror = function () {
-
-        alert(
-            "Library QR Scanner gagal dimuat. Pastikan koneksi internet aktif."
+        console.warn(
+            "[SCANNER] Html5Qrcode not found, waiting..."
         );
 
-    };
+        let attempts = 0;
+        const checkLibrary = setInterval(
+            function() {
 
+                attempts++;
 
-    document
-        .head
-        .appendChild(script);
+                if (typeof Html5Qrcode !== "undefined") {
+
+                    clearInterval(checkLibrary);
+
+                    console.log(
+                        "[SCANNER] Library ready after",
+                        attempts * 100,
+                        "ms"
+                    );
+
+                    initializeScanner();
+                    return;
+
+                }
+
+                if (attempts >= 50) {
+
+                    clearInterval(checkLibrary);
+
+                    console.error(
+                        "[SCANNER] Library timeout after 5 seconds"
+                    );
+
+                    alert(
+                        "Library QR Scanner gagal dimuat. Silakan refresh halaman dan coba lagi."
+                    );
+
+                    showDashboard();
+
+                }
+
+            },
+            100
+        );
+
+    } else {
+
+        console.log(
+            "[SCANNER] Html5Qrcode library ready, initializing..."
+        );
+
+        initializeScanner();
+
+    }
 
 }
 
@@ -121,11 +148,19 @@ async function initializeScanner() {
 
     try {
 
+        console.log(
+            "[SCANNER] Inisialisasi pemindai QR..."
+        );
+
         if (
             !window.isSecureContext &&
             location.hostname !== "localhost" &&
             location.hostname !== "127.0.0.1"
         ) {
+
+            console.error(
+                "[SCANNER] Tidak dalam secure context"
+            );
 
             alert(
                 "Buka aplikasi melalui localhost atau HTTPS agar kamera bisa dipakai."
@@ -141,6 +176,10 @@ async function initializeScanner() {
             !navigator.mediaDevices.getUserMedia
         ) {
 
+            console.error(
+                "[SCANNER] MediaDevices tidak tersedia"
+            );
+
             alert(
                 "Browser Anda tidak mendukung akses kamera."
             );
@@ -150,25 +189,44 @@ async function initializeScanner() {
         }
 
 
+        console.log(
+            "[SCANNER] Mencari element #reader..."
+        );
+
         const reader =
             document.getElementById("reader");
 
 
         if (!reader) {
 
+            console.log(
+                "[SCANNER] Element belum siap, retry..."
+            );
+
             setTimeout(
                 initializeScanner,
-                200
+                300
             );
 
             return;
 
         }
 
+        console.log(
+            "[SCANNER] Element #reader ditemukan"
+        );
 
         qrScanner =
             new Html5Qrcode("reader");
 
+        console.log(
+            "[SCANNER] Html5Qrcode instance dibuat"
+        );
+
+
+        console.log(
+            "[SCANNER] Mencari daftar kamera..."
+        );
 
         const cameras =
             await Html5Qrcode.getCameras();
@@ -179,13 +237,32 @@ async function initializeScanner() {
             cameras.length === 0
         ) {
 
-            alert(
-                "Kamera tidak ditemukan. Pastikan browser memiliki izin kamera."
+            console.error(
+                "[SCANNER] Tidak ada kamera ditemukan"
             );
 
+            alert(
+                "Kamera tidak ditemukan atau browser belum diberi izin. Pastikan Anda sudah memberikan izin akses kamera ke browser."
+            );
+
+            showDashboard();
             return;
 
         }
+
+        console.log(
+            `[SCANNER] ${cameras.length} kamera ditemukan`
+        );
+
+        cameras.forEach(
+            function(cam, idx) {
+
+                console.log(
+                    `  [${idx + 1}] ${cam.label || "Unknown"} - ${cam.id}`
+                );
+
+            }
+        );
 
 
         let cameraId =
@@ -212,6 +289,10 @@ async function initializeScanner() {
                 cameraId =
                     cameras[i].id;
 
+                console.log(
+                    `[SCANNER] Menggunakan kamera belakang: ${cameras[i].label}`
+                );
+
                 break;
 
             }
@@ -231,23 +312,32 @@ async function initializeScanner() {
         };
 
 
+        console.log(
+            "[SCANNER] Mencoba memulai scanner..."
+        );
+
         await startQRScanner(
             cameraId,
             scanningConfig
+        );
+
+        console.log(
+            "[SCANNER] Scanner berhasil dimulai"
         );
 
 
     } catch (error) {
 
         console.error(
-            "Scanner Error:",
+            "[SCANNER] Error:",
             error
         );
 
-
         alert(
-            "Tidak dapat membuka kamera. Pastikan izin kamera diberikan dan aplikasi dibuka lewat localhost/HTTPS."
+            `Tidak dapat membuka kamera.\n\nError: ${error.message}\n\nPastikan:\n1. Izin kamera sudah diberikan\n2. Aplikasi dibuka lewat localhost\n3. Browser mendukung akses kamera`
         );
+
+        showDashboard();
 
     }
 
@@ -262,6 +352,11 @@ async function startQRScanner(
     const successCallback =
         function(decodedText) {
 
+            console.log(
+                "[SCANNER] QR terbaca:",
+                decodedText
+            );
+
             handleQRResult(
                 decodedText
             );
@@ -270,15 +365,18 @@ async function startQRScanner(
 
 
     const errorCallback =
-        function() {
+        function(error) {
 
-            // Error scan biasa tidak perlu
-            // ditampilkan ke user.
+            // Silenced - scanning errors normal
 
         };
 
 
     try {
+
+        console.log(
+            `[SCANNER] Memulai dengan kamera ID: ${cameraId}`
+        );
 
         await qrScanner.start(
             cameraId,
@@ -288,6 +386,11 @@ async function startQRScanner(
         );
 
     } catch (firstError) {
+
+        console.warn(
+            "[SCANNER] Gagal dengan cameraId, coba facingMode environment",
+            firstError.message
+        );
 
         try {
 
@@ -300,7 +403,16 @@ async function startQRScanner(
                 errorCallback
             );
 
+            console.log(
+                "[SCANNER] Berhasil dengan facingMode environment"
+            );
+
         } catch (secondError) {
+
+            console.warn(
+                "[SCANNER] Gagal environment, coba facingMode user",
+                secondError.message
+            );
 
             try {
 
@@ -313,9 +425,20 @@ async function startQRScanner(
                     errorCallback
                 );
 
+                console.log(
+                    "[SCANNER] Berhasil dengan facingMode user"
+                );
+
             } catch (thirdError) {
 
-                throw thirdError;
+                console.error(
+                    "[SCANNER] Semua metode gagal",
+                    thirdError
+                );
+
+                throw new Error(
+                    `Tidak bisa membuka kamera. Terakhir error: ${thirdError.message}`
+                );
 
             }
 

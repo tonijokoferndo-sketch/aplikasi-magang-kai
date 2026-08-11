@@ -665,6 +665,111 @@ a {
     color: var(--gray);
 
     font-size: 14px;
+}
+
+
+/* =====================================================
+   RIWAYAT ABSENSI
+   ===================================================== */
+
+.history {
+    padding: 16px;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.history-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+    padding: 16px;
+    background: var(--kai-blue);
+    color: white;
+    border-radius: 12px;
+}
+
+.btn-back {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.btn-back:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+.history-header h2 {
+    flex: 1;
+    font-size: 18px;
+    margin: 0;
+}
+
+.history-container {
+    padding: 16px;
+}
+
+.loading {
+    text-align: center;
+    padding: 32px 16px;
+    color: var(--gray);
+    font-size: 14px;
+}
+
+.error-message {
+    background: #fee;
+    color: #c33;
+    padding: 16px;
+    border-radius: 8px;
+    font-size: 14px;
+    text-align: center;
+    border-left: 4px solid #c33;
+}
+
+.empty-message {
+    background: #eef;
+    color: #66c;
+    padding: 32px 16px;
+    border-radius: 8px;
+    font-size: 14px;
+    text-align: center;
+}
+
+.history-table {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.history-row {
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 12px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.history-cell {
+    margin-bottom: 8px;
+    font-size: 13px;
+}
+
+.history-cell:last-child {
+    margin-bottom: 0;
+}
+
+.history-cell strong {
+    color: var(--kai-blue);
+    display: block;
+    font-size: 12px;
+    margin-bottom: 4px;
+}
 
     margin-bottom: 20px;
 }

@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug Kamera</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: monospace; background: #1a1a1a; color: #0f0; padding: 20px; }
+        .box { background: #0a0a0a; border: 1px solid #0f0; padding: 15px; margin: 10px 0; border-radius: 5px; }
+        .ok { color: #0f0; }
+        .err { color: #f00; }
+        .warn { color: #ff0; }
+        button { background: #0f0; color: #000; border: none; padding: 10px 20px; cursor: pointer; font-weight: bold; margin: 5px; }
+        #reader { width: 100%; max-width: 400px; margin: 20px auto; background: #000; }
+    </style>
+</head>
+<body>
+    <div class="box">
+        <h2>🔍 Debug Kamera</h2>
+        <div id="log"></div>
+    </div>
+
+    <div class="box">
+        <button onclick="checkBrowser()">1. Cek Browser</button>
+        <button onclick="checkMediaDevices()">2. Cek MediaDevices</button>
+        <button onclick="checkLibrary()">3. Cek Library</button>
+        <button onclick="getCameras()">4. Ambil Daftar Kamera</button>
+        <button onclick="startTest()">5. Mulai Kamera</button>
+        <button onclick="stopTest()">6. Stop Kamera</button>
+    </div>
+
+    <div class="box">
+        <h3>Preview Kamera</h3>
+        <div id="reader"></div>
+    </div>
+
+    <script src="assets/lib/html5-qrcode.min.js"></script>
+    <script>
+        let qrScanner = null;
+        const log = document.getElementById("log");
+
+        function addLog(msg, type = "info") {
+            const time = new Date().toLocaleTimeString();
+            const color = type === "err" ? "err" : type === "warn" ? "warn" : "ok";
+            const html = `<div class="${color}">[${time}] ${msg}</div>`;
+            log.innerHTML += html;
+            log.scrollTop = log.scrollHeight;
+            console.log(`[${type}]`, msg);
+        }
+
+        function checkBrowser() {
+            addLog("🌐 Browser Info:", "warn");
+            addLog(`- User Agent: ${navigator.userAgent}`, "info");
+            addLog(`- Platform: ${navigator.platform}`, "info");
+            addLog(`- Secure Context: ${window.isSecureContext}`, window.isSecureContext ? "ok" : "err");
+            addLog(`- Hostname: ${location.hostname}`, "info");
+            addLog(`- Protocol: ${location.protocol}`, "info");
+        }
+
+        function checkMediaDevices() {
+            addLog("📹 MediaDevices API:", "warn");
+            if (navigator.mediaDevices) {
+                addLog("✓ navigator.mediaDevices tersedia", "ok");
+                if (navigator.mediaDevices.getUserMedia) {
+                    addLog("✓ getUserMedia tersedia", "ok");
+                } else {
+                    addLog("✗ getUserMedia TIDAK tersedia", "err");
+                }
+            } else {
+                addLog("✗ navigator.mediaDevices TIDAK tersedia", "err");
+            }
+        }
+
+        function checkLibrary() {
+            addLog("📚 Library Check:", "warn");
+            if (typeof Html5Qrcode !== "undefined") {
+                addLog("✓ Html5Qrcode library loaded", "ok");
+                addLog(`- Version: ${Html5Qrcode.VERSION || "unknown"}`, "info");
+            } else {
+                addLog("✗ Html5Qrcode library NOT loaded", "err");
+            }
+        }
+
+        async function getCameras() {
+            addLog("📷 Mencari Kamera:", "warn");
+            try {
+                if (typeof Html5Qrcode === "undefined") {
+                    addLog("✗ Library belum siap", "err");
+                    return;
+                }
+                const cameras = await Html5Qrcode.getCameras();
+                if (cameras && cameras.length > 0) {
+                    addLog(`✓ Ditemukan ${cameras.length} kamera:`, "ok");
+                    cameras.forEach((cam, idx) => {
+                        addLog(`  ${idx + 1}. ${cam.label || "Unknown"} (ID: ${cam.id})`, "info");
+                    });
+                } else {
+                    addLog("✗ Tidak ada kamera ditemukan", "err");
+                    addLog("  Kemungkinan: Browser belum diberi izin, atau tidak ada kamera", "warn");
+                }
+            } catch (error) {
+                addLog(`✗ Error: ${error.message}`, "err");
+            }
+        }
+
+        async function startTest() {
+            addLog("🚀 Mulai Kamera:", "warn");
+            try {
+                if (typeof Html5Qrcode === "undefined") {
+                    addLog("✗ Library belum siap", "err");
+                    return;
+                }
+
+                const reader = document.getElementById("reader");
+                if (!reader) {
+                    addLog("✗ Element #reader tidak ditemukan", "err");
+                    return;
+                }
+
+                addLog("✓ Element #reader ditemukan", "ok");
+
+                qrScanner = new Html5Qrcode("reader");
+                addLog("✓ Html5Qrcode instance dibuat", "ok");
+
+                const cameras = await Html5Qrcode.getCameras();
+                if (!cameras || cameras.length === 0) {
+                    addLog("✗ Tidak ada kamera", "err");
+                    return;
+                }
+
+                addLog(`✓ Ditemukan ${cameras.length} kamera`, "ok");
+                addLog("  Mencoba memulai dengan kamera pertama...", "info");
+
+                await qrScanner.start(
+                    { facingMode: "environment" },
+                    { fps: 10, qrbox: { width: 250, height: 250 } },
+                    (decodedText) => {
+                        addLog(`✓ QR Terbaca: ${decodedText}`, "ok");
+                    },
+                    () => {}
+                );
+
+                addLog("✓ KAMERA BERHASIL DIBUKA!", "ok");
+            } catch (error) {
+                addLog(`✗ Error: ${error.name}`, "err");
+                addLog(`  ${error.message}`, "err");
+                if (error.stack) {
+                    addLog(`  Stack: ${error.stack.substring(0, 200)}`, "info");
+                }
+            }
+        }
+
+        async function stopTest() {
+            addLog("⏹️  Stop Kamera:", "warn");
+            try {
+                if (qrScanner) {
+                    await qrScanner.stop();
+                    await qrScanner.clear();
+                    qrScanner = null;
+                    addLog("✓ Kamera dihentikan", "ok");
+                } else {
+                    addLog("ℹ️  Kamera tidak aktif", "info");
+                }
+            } catch (error) {
+                addLog(`✗ Error: ${error.message}`, "err");
+            }
+        }
+
+        // Auto check saat load
+        window.addEventListener("load", () => {
+            addLog("=== PAGE LOADED ===", "warn");
+            setTimeout(() => {
+                checkBrowser();
+                checkMediaDevices();
+                checkLibrary();
+            }, 500);
+        });
+    </script>
+</body>
+</html>
