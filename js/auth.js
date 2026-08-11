@@ -50,7 +50,7 @@ async function login(nim, password) {
             );
 
 
-        if (result.status) {
+        if (result && result.status) {
 
             localStorage.setItem(
 
@@ -66,6 +66,16 @@ async function login(nim, password) {
 
         }
 
+        return {
+
+            status: false,
+
+            message:
+                result?.message ||
+                "Login gagal. Pastikan akun Anda dibuat melalui server absensi yang sama."
+
+        };
+
 
     } catch (error) {
 
@@ -74,53 +84,16 @@ async function login(nim, password) {
             error
         );
 
-    }
-
-
-    /* Fallback lokal jika server tidak merespons */
-
-    const localUser =
-        findLocalUser(
-            normalizedNim,
-            password
-        );
-
-
-    if (localUser) {
-
-        const userData = {
-            ...localUser,
-            registeredLocally: true
-        };
-
-
-        localStorage.setItem(
-            "user",
-            JSON.stringify(userData)
-        );
-
-
         return {
 
-            status: true,
+            status: false,
 
-            message: "Login berhasil.",
-
-            user: userData
+            message:
+                "Tidak dapat terhubung ke server absensi. Pastikan API aktif dan jaringan tersedia."
 
         };
 
     }
-
-
-    return {
-
-        status: false,
-
-        message:
-            "NIM atau Password salah."
-
-    };
 
 }
 
@@ -210,6 +183,16 @@ async function register(nim, password, nama, divisi) {
 
         }
 
+        return {
+
+            status: false,
+
+            message:
+                result?.message ||
+                "Pendaftaran gagal. Server absensi tidak menerima akun ini."
+
+        };
+
     } catch (error) {
 
         console.error(
@@ -217,53 +200,16 @@ async function register(nim, password, nama, divisi) {
             error
         );
 
+        return {
+
+            status: false,
+
+            message:
+                "Tidak dapat terhubung ke server absensi untuk mendaftarkan akun."
+
+        };
+
     }
-
-
-    /* Fallback lokal */
-
-    const newUser = {
-
-        nim: normalizedNim,
-
-        password: password,
-
-        nama: nama,
-
-        divisi: divisi || "-"
-
-    };
-
-
-    users.push(newUser);
-
-    saveRegisteredUsers(users);
-
-
-    const userData = {
-        nim: normalizedNim,
-        nama: nama,
-        divisi: divisi || "-",
-        registeredLocally: true
-    };
-
-
-    localStorage.setItem(
-        "user",
-        JSON.stringify(userData)
-    );
-
-
-    return {
-
-        status: true,
-
-        message:
-            "Pendaftaran berhasil. Silakan masuk.",
-
-        user: userData
-
-    };
 
 }
 

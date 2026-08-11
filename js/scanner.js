@@ -5,6 +5,37 @@
 
 let qrScanner = null;
 
+function isMobileDevice() {
+    return /Android|iPhone|iPad|iPod|Windows Phone|Mobile/i.test(
+        navigator.userAgent || ""
+    );
+}
+
+function getPreferredCameraId(cameras) {
+    if (!cameras || cameras.length === 0) {
+        return null;
+    }
+
+    const rearCamera = cameras.find(function(camera) {
+        const label = (camera.label || "").toLowerCase();
+        return (
+            label.includes("back") ||
+            label.includes("rear") ||
+            label.includes("environment") ||
+            label.includes("primary")
+        );
+    });
+
+    if (rearCamera) {
+        console.log(
+            "[SCANNER] Menggunakan kamera belakang dari daftar kamera:",
+            rearCamera.label || rearCamera.id
+        );
+        return rearCamera.id;
+    }
+
+    return cameras[0].id;
+}
 
 /* ================================================
    MEMBUKA SCANNER
@@ -265,40 +296,15 @@ async function initializeScanner() {
         );
 
 
-        let cameraId =
-            cameras[0].id;
+        const cameraId =
+            getPreferredCameraId(cameras);
 
+        const mobile =
+            isMobileDevice();
 
-        for (
-            let i = 0;
-            i < cameras.length;
-            i++
-        ) {
-
-            const label =
-                (cameras[i].label || "")
-                    .toLowerCase();
-
-
-            if (
-                label.includes("back") ||
-                label.includes("rear") ||
-                label.includes("environment")
-            ) {
-
-                cameraId =
-                    cameras[i].id;
-
-                console.log(
-                    `[SCANNER] Menggunakan kamera belakang: ${cameras[i].label}`
-                );
-
-                break;
-
-            }
-
-        }
-
+        console.log(
+            `[SCANNER] Mobile device: ${mobile}`
+        );
 
         const scanningConfig = {
 
@@ -374,6 +380,29 @@ async function startQRScanner(
 
     try {
 
+        if (isMobileDevice()) {
+
+            console.log(
+                "[SCANNER] Mobile device, mencoba facingMode environment terlebih dahulu"
+            );
+
+            await qrScanner.start(
+                {
+                    facingMode: "environment"
+                },
+                scanningConfig,
+                successCallback,
+                errorCallback
+            );
+
+            console.log(
+                "[SCANNER] Berhasil dengan facingMode environment pada ponsel"
+            );
+
+            return;
+
+        }
+
         console.log(
             `[SCANNER] Memulai dengan kamera ID: ${cameraId}`
         );
@@ -388,29 +417,37 @@ async function startQRScanner(
     } catch (firstError) {
 
         console.warn(
-            "[SCANNER] Gagal dengan cameraId, coba facingMode environment",
+            "[SCANNER] Gagal dengan mobile environment/cameraId, coba kamera ID",
             firstError.message
         );
 
         try {
 
-            await qrScanner.start(
-                {
-                    facingMode: "environment"
-                },
-                scanningConfig,
-                successCallback,
-                errorCallback
-            );
+            if (cameraId) {
 
-            console.log(
-                "[SCANNER] Berhasil dengan facingMode environment"
-            );
+                await qrScanner.start(
+                    cameraId,
+                    scanningConfig,
+                    successCallback,
+                    errorCallback
+                );
+
+                console.log(
+                    "[SCANNER] Berhasil dengan cameraId fallback"
+                );
+
+            } else {
+
+                throw new Error(
+                    "Kamera ID tidak tersedia"
+                );
+
+            }
 
         } catch (secondError) {
 
             console.warn(
-                "[SCANNER] Gagal environment, coba facingMode user",
+                "[SCANNER] Gagal cameraId, coba facingMode environment",
                 secondError.message
             );
 
@@ -418,7 +455,7 @@ async function startQRScanner(
 
                 await qrScanner.start(
                     {
-                        facingMode: "user"
+                        facingMode: "environment"
                     },
                     scanningConfig,
                     successCallback,
@@ -426,19 +463,43 @@ async function startQRScanner(
                 );
 
                 console.log(
-                    "[SCANNER] Berhasil dengan facingMode user"
+                    "[SCANNER] Berhasil dengan facingMode environment"
                 );
 
             } catch (thirdError) {
 
-                console.error(
-                    "[SCANNER] Semua metode gagal",
-                    thirdError
+                console.warn(
+                    "[SCANNER] Gagal environment, coba facingMode user",
+                    thirdError.message
                 );
 
-                throw new Error(
-                    `Tidak bisa membuka kamera. Terakhir error: ${thirdError.message}`
-                );
+                try {
+
+                    await qrScanner.start(
+                        {
+                            facingMode: "user"
+                        },
+                        scanningConfig,
+                        successCallback,
+                        errorCallback
+                    );
+
+                    console.log(
+                        "[SCANNER] Berhasil dengan facingMode user"
+                    );
+
+                } catch (fourthError) {
+
+                    console.error(
+                        "[SCANNER] Semua metode gagal",
+                        fourthError
+                    );
+
+                    throw new Error(
+                        `Tidak bisa membuka kamera. Terakhir error: ${fourthError.message}`
+                    );
+
+                }
 
             }
 
