@@ -71,7 +71,7 @@ function startScanner() {
 function loadQRScannerLibrary() {
 
     if (
-        typeof Html5Qrcode !==
+        typeof window.Html5Qrcode !==
         "undefined"
     ) {
 
@@ -86,9 +86,8 @@ function loadQRScannerLibrary() {
         document.createElement("script");
 
 
-    // Load the minified browser build to avoid module/redirect issues
     script.src =
-        "https://unpkg.com/html5-qrcode/minified/html5-qrcode.min.js";
+        "https://unpkg.com/html5-qrcode@2.3.8/minified/html5-qrcode.min.js";
 
 
     script.onload = function () {
@@ -101,7 +100,7 @@ function loadQRScannerLibrary() {
     script.onerror = function () {
 
         alert(
-            "Library QR Scanner gagal dimuat."
+            "Library QR Scanner gagal dimuat. Pastikan koneksi internet aktif."
         );
 
     };
@@ -122,6 +121,51 @@ async function initializeScanner() {
 
     try {
 
+        if (
+            !window.isSecureContext &&
+            location.hostname !== "localhost" &&
+            location.hostname !== "127.0.0.1"
+        ) {
+
+            alert(
+                "Buka aplikasi melalui localhost atau HTTPS agar kamera bisa dipakai."
+            );
+
+            return;
+
+        }
+
+
+        if (
+            !navigator.mediaDevices ||
+            !navigator.mediaDevices.getUserMedia
+        ) {
+
+            alert(
+                "Browser Anda tidak mendukung akses kamera."
+            );
+
+            return;
+
+        }
+
+
+        const reader =
+            document.getElementById("reader");
+
+
+        if (!reader) {
+
+            setTimeout(
+                initializeScanner,
+                200
+            );
+
+            return;
+
+        }
+
+
         qrScanner =
             new Html5Qrcode("reader");
 
@@ -136,17 +180,13 @@ async function initializeScanner() {
         ) {
 
             alert(
-                "Kamera tidak ditemukan."
+                "Kamera tidak ditemukan. Pastikan browser memiliki izin kamera."
             );
 
             return;
 
         }
 
-
-        /*
-         * Cari kamera belakang
-         */
 
         let cameraId =
             cameras[0].id;
@@ -159,7 +199,7 @@ async function initializeScanner() {
         ) {
 
             const label =
-                cameras[i].label
+                (cameras[i].label || "")
                     .toLowerCase();
 
 
@@ -179,38 +219,21 @@ async function initializeScanner() {
         }
 
 
-        await qrScanner.start(
+        const scanningConfig = {
 
-            cameraId,
+            fps: 10,
 
-            {
-
-                fps: 10,
-
-                qrbox: {
-                    width: 250,
-                    height: 250
-                }
-
-            },
-
-            function(decodedText) {
-
-                handleQRResult(
-                    decodedText
-                );
-
-            },
-
-            function(errorMessage) {
-
-                /*
-                 * Error scan biasa tidak perlu
-                 * ditampilkan ke user.
-                 */
-
+            qrbox: {
+                width: 250,
+                height: 250
             }
 
+        };
+
+
+        await startQRScanner(
+            cameraId,
+            scanningConfig
         );
 
 
@@ -223,8 +246,80 @@ async function initializeScanner() {
 
 
         alert(
-            "Tidak dapat membuka kamera. Pastikan izin kamera diberikan."
+            "Tidak dapat membuka kamera. Pastikan izin kamera diberikan dan aplikasi dibuka lewat localhost/HTTPS."
         );
+
+    }
+
+}
+
+
+async function startQRScanner(
+    cameraId,
+    scanningConfig
+) {
+
+    const successCallback =
+        function(decodedText) {
+
+            handleQRResult(
+                decodedText
+            );
+
+        };
+
+
+    const errorCallback =
+        function() {
+
+            // Error scan biasa tidak perlu
+            // ditampilkan ke user.
+
+        };
+
+
+    try {
+
+        await qrScanner.start(
+            cameraId,
+            scanningConfig,
+            successCallback,
+            errorCallback
+        );
+
+    } catch (firstError) {
+
+        try {
+
+            await qrScanner.start(
+                {
+                    facingMode: "environment"
+                },
+                scanningConfig,
+                successCallback,
+                errorCallback
+            );
+
+        } catch (secondError) {
+
+            try {
+
+                await qrScanner.start(
+                    {
+                        facingMode: "user"
+                    },
+                    scanningConfig,
+                    successCallback,
+                    errorCallback
+                );
+
+            } catch (thirdError) {
+
+                throw thirdError;
+
+            }
+
+        }
 
     }
 

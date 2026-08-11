@@ -4,7 +4,7 @@
  * Aplikasi Absensi Magang KAI
  ***************************************************/
 
-const CACHE_NAME = "absensi-kai-v1";
+const CACHE_NAME = "absensi-kai-v2";
 
 
 /*
