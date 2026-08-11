@@ -1,0 +1,26 @@
+{
+    "name": "Absensi Magang KAI",
+    "short_name": "Absensi KAI",
+    "description": "Aplikasi absensi mahasiswa magang PT KAI Divre II Sumbar",
+    "start_url": "./index.html",
+    "scope": "./",
+    "display": "standalone",
+    "orientation": "portrait",
+    "background_color": "#f4f6f9",
+    "theme_color": "#0f4c81",
+
+    "icons": [
+        {
+            "src": "assets/icon-192.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "any maskable"
+        },
+        {
+            "src": "assets/icon-512.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "any maskable"
+        }
+    ]
+}

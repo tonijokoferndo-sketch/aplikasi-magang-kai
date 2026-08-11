@@ -1,0 +1,1120 @@
+/* =====================================================
+   ABSENSI MAGANG KAI - STYLE.CSS
+   PT KAI Divre II Sumbar
+   ===================================================== */
+
+
+/* =====================================================
+   1. RESET & DASAR
+   ===================================================== */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family:
+        "Segoe UI",
+        Roboto,
+        Arial,
+        sans-serif;
+
+    background: #f4f6f9;
+    color: #222;
+
+    min-height: 100vh;
+
+    line-height: 1.5;
+}
+
+button,
+input {
+    font-family: inherit;
+}
+
+button {
+    cursor: pointer;
+}
+
+a {
+    text-decoration: none;
+}
+
+
+/* =====================================================
+   2. WARNA UTAMA
+   ===================================================== */
+
+:root {
+
+    --kai-blue: #0f4c81;
+
+    --kai-blue-dark: #0a365c;
+
+    --kai-blue-light: #eaf3fb;
+
+    --success: #198754;
+
+    --danger: #dc3545;
+
+    --warning: #ffc107;
+
+    --white: #ffffff;
+
+    --black: #222222;
+
+    --gray: #6c757d;
+
+    --light-gray: #f4f6f9;
+
+    --border: #dee2e6;
+
+    --shadow:
+        0 8px 25px rgba(0, 0, 0, 0.08);
+
+}
+
+
+/* =====================================================
+   3. APP CONTAINER
+   ===================================================== */
+
+#app {
+    min-height: 100vh;
+}
+
+
+/* =====================================================
+   4. LOADING SCREEN
+   ===================================================== */
+
+#loadingScreen {
+
+    position: fixed;
+
+    inset: 0;
+
+    z-index: 9999;
+
+    display: flex;
+
+    justify-content: center;
+
+    align-items: center;
+
+    background: var(--white);
+
+    transition:
+        opacity 0.3s ease,
+        visibility 0.3s ease;
+}
+
+.loading-content {
+
+    text-align: center;
+
+    padding: 30px;
+}
+
+.loading-logo {
+
+    width: 80px;
+
+    height: 80px;
+
+    margin: 0 auto 20px;
+
+    display: flex;
+
+    justify-content: center;
+
+    align-items: center;
+
+    border-radius: 50%;
+
+    background: var(--kai-blue);
+
+    color: var(--white);
+
+    font-size: 24px;
+
+    font-weight: 700;
+
+}
+
+.loading-content h2 {
+
+    color: var(--kai-blue);
+
+    font-size: 24px;
+
+    margin-bottom: 5px;
+}
+
+.loading-content p {
+
+    color: var(--gray);
+
+    font-size: 14px;
+
+    margin-bottom: 20px;
+}
+
+.loading-spinner {
+
+    width: 35px;
+
+    height: 35px;
+
+    margin: auto;
+
+    border: 4px solid #e5e5e5;
+
+    border-top-color: var(--kai-blue);
+
+    border-radius: 50%;
+
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+
+    to {
+        transform: rotate(360deg);
+    }
+
+}
+
+
+/* =====================================================
+   5. LOGIN
+   ===================================================== */
+
+.login-container {
+
+    min-height: 100vh;
+
+    display: flex;
+
+    justify-content: center;
+
+    align-items: center;
+
+    padding: 20px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #eef5fb,
+            #f8fafc
+        );
+}
+
+.login-card {
+
+    width: 100%;
+
+    max-width: 420px;
+
+    padding: 35px 30px;
+
+    background: var(--white);
+
+    border-radius: 20px;
+
+    box-shadow: var(--shadow);
+
+}
+
+.logo-container {
+
+    display: flex;
+
+    justify-content: center;
+
+    margin-bottom: 20px;
+}
+
+.logo-placeholder {
+
+    width: 85px;
+
+    height: 85px;
+
+    display: flex;
+
+    justify-content: center;
+
+    align-items: center;
+
+    background: var(--kai-blue);
+
+    color: var(--white);
+
+    border-radius: 50%;
+
+    font-size: 25px;
+
+    font-weight: 800;
+
+    box-shadow:
+        0 8px 20px rgba(15, 76, 129, 0.25);
+}
+
+.login-logo-img {
+
+    width: 100%;
+
+    height: 100%;
+
+    object-fit: cover;
+
+    border-radius: 50%;
+
+    display: block;
+
+}
+
+.login-card h1 {
+
+    text-align: center;
+
+    color: var(--kai-blue);
+
+    font-size: 25px;
+
+    margin-bottom: 5px;
+}
+
+.subtitle {
+
+    text-align: center;
+
+    color: var(--gray);
+
+    font-size: 14px;
+
+    margin-bottom: 28px;
+}
+
+
+/* =====================================================
+   6. FORM
+   ===================================================== */
+
+.form-group {
+
+    margin-bottom: 18px;
+}
+
+.form-group label {
+
+    display: block;
+
+    margin-bottom: 7px;
+
+    color: #333;
+
+    font-size: 14px;
+
+    font-weight: 600;
+}
+
+.form-group input {
+
+    width: 100%;
+
+    height: 48px;
+
+    padding: 0 14px;
+
+    border: 1px solid var(--border);
+
+    border-radius: 10px;
+
+    outline: none;
+
+    background: var(--white);
+
+    color: var(--black);
+
+    font-size: 15px;
+
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.form-group input:focus {
+
+    border-color: var(--kai-blue);
+
+    box-shadow:
+        0 0 0 3px rgba(
+            15,
+            76,
+            129,
+            0.10
+        );
+}
+
+.form-group input::placeholder {
+
+    color: #adb5bd;
+}
+
+
+/* =====================================================
+   7. BUTTON UTAMA
+   ===================================================== */
+
+.btn-primary {
+
+    width: 100%;
+
+    min-height: 48px;
+
+    padding: 12px 18px;
+
+    border: none;
+
+    border-radius: 10px;
+
+    background: var(--kai-blue);
+
+    color: var(--white);
+
+    font-size: 15px;
+
+    font-weight: 600;
+
+    transition:
+        background 0.2s ease,
+        transform 0.1s ease;
+}
+
+.btn-primary:hover {
+
+    background: var(--kai-blue-dark);
+}
+
+.btn-primary:active {
+
+    transform: scale(0.98);
+}
+
+.btn-primary:disabled {
+
+    opacity: 0.6;
+
+    cursor: not-allowed;
+}
+
+
+/* =====================================================
+   8. PESAN LOGIN
+   ===================================================== */
+
+.auth-toggle {
+
+    display: grid;
+
+    grid-template-columns: 1fr 1fr;
+
+    gap: 8px;
+
+    padding: 6px;
+
+    margin-bottom: 18px;
+
+    background: #f3f6fa;
+
+    border-radius: 12px;
+}
+
+.auth-toggle-btn {
+
+    border: none;
+
+    border-radius: 10px;
+
+    padding: 10px 12px;
+
+    background: transparent;
+
+    color: #4b5563;
+
+    font-size: 13px;
+
+    font-weight: 700;
+
+    cursor: pointer;
+}
+
+.auth-toggle-btn.active {
+
+    background: var(--kai-blue);
+
+    color: var(--white);
+}
+
+.message {
+
+    min-height: 20px;
+
+    margin-top: 15px;
+
+    text-align: center;
+
+    color: var(--danger);
+
+    font-size: 14px;
+}
+
+
+/* =====================================================
+   9. DASHBOARD
+   ===================================================== */
+
+.dashboard {
+
+    width: 100%;
+
+    max-width: 650px;
+
+    min-height: 100vh;
+
+    margin: auto;
+
+    padding: 15px;
+}
+
+
+/* =====================================================
+   10. HEADER DASHBOARD
+   ===================================================== */
+
+.dashboard-header {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: flex-start;
+
+    padding: 22px;
+
+    margin-bottom: 18px;
+
+    background: var(--kai-blue);
+
+    color: var(--white);
+
+    border-radius: 18px;
+
+    box-shadow:
+        0 8px 20px rgba(
+            15,
+            76,
+            129,
+            0.20
+        );
+}
+
+.dashboard-header small {
+
+    display: block;
+
+    margin-bottom: 4px;
+
+    opacity: 0.85;
+
+    font-size: 13px;
+}
+
+.dashboard-header h2 {
+
+    font-size: 21px;
+
+    margin-bottom: 4px;
+
+    font-weight: 700;
+}
+
+.dashboard-header p {
+
+    margin: 0;
+
+    font-size: 13px;
+
+    opacity: 0.85;
+}
+
+
+/* =====================================================
+   11. LOGOUT
+   ===================================================== */
+
+.btn-logout {
+
+    border: 1px solid
+        rgba(255, 255, 255, 0.35);
+
+    background:
+        rgba(255, 255, 255, 0.12);
+
+    color: var(--white);
+
+    padding: 8px 12px;
+
+    border-radius: 8px;
+
+    font-size: 13px;
+
+    transition: background 0.2s ease;
+}
+
+.btn-logout:hover {
+
+    background:
+        rgba(255, 255, 255, 0.22);
+}
+
+
+/* =====================================================
+   12. CARD ABSENSI
+   ===================================================== */
+
+.attendance-card {
+
+    padding: 25px;
+
+    margin-bottom: 18px;
+
+    background: var(--white);
+
+    border-radius: 18px;
+
+    box-shadow: var(--shadow);
+}
+
+.attendance-card h3 {
+
+    color: #333;
+
+    font-size: 19px;
+
+    margin-bottom: 8px;
+}
+
+.attendance-card p {
+
+    color: var(--gray);
+
+    font-size: 14px;
+
+    margin-bottom: 20px;
+}
+
+
+/* =====================================================
+   13. MENU CARD
+   ===================================================== */
+
+.menu-card {
+
+    padding: 10px;
+
+    background: var(--white);
+
+    border-radius: 18px;
+
+    box-shadow: var(--shadow);
+}
+
+.menu-card button {
+
+    width: 100%;
+
+    padding: 15px;
+
+    border: none;
+
+    border-bottom:
+        1px solid #eeeeee;
+
+    background: transparent;
+
+    color: #333;
+
+    text-align: left;
+
+    font-size: 15px;
+
+    transition: background 0.2s ease;
+}
+
+.menu-card button:last-child {
+
+    border-bottom: none;
+}
+
+.menu-card button:hover {
+
+    background: var(--light-gray);
+
+}
+
+
+/* =====================================================
+   14. STATUS ABSENSI
+   ===================================================== */
+
+.status-card {
+
+    padding: 20px;
+
+    margin-bottom: 18px;
+
+    background: var(--white);
+
+    border-radius: 18px;
+
+    box-shadow: var(--shadow);
+}
+
+.status-title {
+
+    color: var(--gray);
+
+    font-size: 13px;
+
+    margin-bottom: 6px;
+}
+
+.status-value {
+
+    font-size: 22px;
+
+    font-weight: 700;
+
+    color: var(--kai-blue);
+}
+
+.status-success {
+
+    color: var(--success);
+}
+
+.status-warning {
+
+    color: #d39e00;
+}
+
+.status-danger {
+
+    color: var(--danger);
+}
+
+
+/* =====================================================
+   15. JAM DIGITAL
+   ===================================================== */
+
+.digital-clock {
+
+    text-align: center;
+
+    margin: 10px 0 20px;
+
+    color: var(--white);
+
+    font-size: 26px;
+
+    font-weight: 700;
+
+    letter-spacing: 1px;
+}
+
+.digital-date {
+
+    text-align: center;
+
+    color: rgba(255,255,255,0.85);
+
+    font-size: 13px;
+
+    margin-bottom: 5px;
+}
+
+
+/* =====================================================
+   16. QR SCANNER
+   ===================================================== */
+
+.scanner-container {
+
+    width: 100%;
+
+    min-height: 100vh;
+
+    padding: 15px;
+
+    background: #111;
+
+    color: white;
+}
+
+.scanner-header {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    margin-bottom: 20px;
+}
+
+.scanner-header h2 {
+
+    font-size: 19px;
+}
+
+.scanner-close {
+
+    border: none;
+
+    background: #dc3545;
+
+    color: white;
+
+    padding: 8px 13px;
+
+    border-radius: 8px;
+}
+
+#reader {
+
+    width: 100%;
+
+    max-width: 500px;
+
+    margin: auto;
+
+    overflow: hidden;
+
+    border-radius: 15px;
+
+    background: #000;
+}
+
+.scanner-info {
+
+    max-width: 500px;
+
+    margin: 20px auto;
+
+    text-align: center;
+
+    color: #ddd;
+
+    font-size: 14px;
+}
+
+
+/* =====================================================
+   17. RIWAYAT ABSENSI
+   ===================================================== */
+
+.history-container {
+
+    width: 100%;
+
+    max-width: 650px;
+
+    margin: auto;
+
+    padding: 15px;
+}
+
+.history-header {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    margin-bottom: 20px;
+}
+
+.history-header h2 {
+
+    color: var(--kai-blue);
+
+    font-size: 21px;
+}
+
+.history-card {
+
+    padding: 18px;
+
+    margin-bottom: 12px;
+
+    background: var(--white);
+
+    border-radius: 15px;
+
+    box-shadow:
+        0 4px 15px
+        rgba(0, 0, 0, 0.06);
+}
+
+.history-date {
+
+    color: var(--kai-blue);
+
+    font-size: 16px;
+
+    font-weight: 700;
+
+    margin-bottom: 10px;
+}
+
+.history-row {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    padding: 6px 0;
+
+    color: #555;
+
+    font-size: 14px;
+}
+
+.history-status {
+
+    display: inline-block;
+
+    padding: 4px 9px;
+
+    border-radius: 20px;
+
+    background: #d1e7dd;
+
+    color: #0f5132;
+
+    font-size: 12px;
+
+    font-weight: 600;
+}
+
+
+/* =====================================================
+   18. TOMBOL KEMBALI
+   ===================================================== */
+
+.btn-back {
+
+    width: 100%;
+
+    min-height: 45px;
+
+    margin-top: 15px;
+
+    border: none;
+
+    border-radius: 10px;
+
+    background: #6c757d;
+
+    color: white;
+
+    font-size: 14px;
+
+    font-weight: 600;
+}
+
+.btn-back:hover {
+
+    background: #565e64;
+}
+
+
+/* =====================================================
+   19. EMPTY STATE
+   ===================================================== */
+
+.empty-state {
+
+    padding: 40px 20px;
+
+    text-align: center;
+
+    color: var(--gray);
+}
+
+.empty-state-icon {
+
+    font-size: 45px;
+
+    margin-bottom: 15px;
+
+    opacity: 0.5;
+}
+
+.empty-state h3 {
+
+    font-size: 18px;
+
+    margin-bottom: 5px;
+
+    color: #555;
+}
+
+.empty-state p {
+
+    font-size: 14px;
+}
+
+
+/* =====================================================
+   20. NOTIFICATION
+   ===================================================== */
+
+.alert {
+
+    padding: 12px 15px;
+
+    margin-bottom: 15px;
+
+    border-radius: 10px;
+
+    font-size: 14px;
+}
+
+.alert-success {
+
+    background: #d1e7dd;
+
+    color: #0f5132;
+}
+
+.alert-danger {
+
+    background: #f8d7da;
+
+    color: #842029;
+}
+
+.alert-warning {
+
+    background: #fff3cd;
+
+    color: #664d03;
+}
+
+
+/* =====================================================
+   21. RESPONSIVE TABLET
+   ===================================================== */
+
+@media (min-width: 600px) {
+
+    .dashboard {
+
+        padding: 25px;
+    }
+
+    .login-card {
+
+        padding: 40px;
+    }
+
+}
+
+
+/* =====================================================
+   22. RESPONSIVE DESKTOP
+   ===================================================== */
+
+@media (min-width: 992px) {
+
+    body {
+
+        background: #eef2f6;
+    }
+
+    .dashboard {
+
+        padding-top: 40px;
+
+        max-width: 700px;
+    }
+
+    .login-card {
+
+        max-width: 430px;
+    }
+
+}
+
+
+/* =====================================================
+   23. HP KECIL
+   ===================================================== */
+
+@media (max-width: 380px) {
+
+    .login-card {
+
+        padding: 25px 20px;
+
+        border-radius: 16px;
+    }
+
+    .dashboard {
+
+        padding: 10px;
+    }
+
+    .dashboard-header {
+
+        padding: 18px;
+    }
+
+    .dashboard-header h2 {
+
+        font-size: 18px;
+    }
+
+    .attendance-card {
+
+        padding: 20px;
+    }
+
+}
+
+
+/* =====================================================
+   24. DARK MODE - PERSIAPAN
+   ===================================================== */
+
+@media (prefers-color-scheme: dark) {
+
+    /*
+       Untuk sekarang dark mode belum kita aktifkan.
+       Bagian ini sengaja disiapkan untuk pengembangan
+       PWA berikutnya.
+    */
+
+}
