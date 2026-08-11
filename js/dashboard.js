@@ -97,6 +97,16 @@ async function showDashboard() {
 
             </div>
 
+            <div class="install-card" id="dashboardInstallCard" style="display:none;">
+
+                <button
+                    class="btn-secondary"
+                    id="dashboardInstallButton"
+                >
+                    Pasang Aplikasi
+                </button>
+
+            </div>
 
             <div class="menu-card">
 

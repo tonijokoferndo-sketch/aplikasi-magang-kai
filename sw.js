@@ -32,7 +32,11 @@ const APP_SHELL = [
 
     "./js/scanner.js",
 
-    "./manifest.json"
+    "./manifest.json",
+
+    "./assets/icon-192.png",
+
+    "./assets/icon-512.png"
 
 ];
 

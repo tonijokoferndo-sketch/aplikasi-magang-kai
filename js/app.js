@@ -4,6 +4,27 @@
  ***************************************************/
 
 
+let deferredInstallPrompt = null;
+
+window.addEventListener(
+    "beforeinstallprompt",
+    function (event) {
+
+        event.preventDefault();
+        deferredInstallPrompt = event;
+        console.log("PWA install prompt tersedia");
+        initializeInstallButton();
+
+    }
+);
+
+window.addEventListener(
+    "appinstalled",
+    function () {
+        console.log("Aplikasi berhasil dipasang.");
+    }
+);
+
 document.addEventListener(
     "DOMContentLoaded",
     function () {
@@ -207,6 +228,15 @@ function showLogin() {
 
                 <p class="message" id="authMessage"></p>
 
+                <button
+                    type="button"
+                    id="installAppButton"
+                    class="btn-secondary"
+                    style="display:none;margin:10px auto 0;"
+                >
+                    Pasang Aplikasi
+                </button>
+
                 <p class="login-footer">
 
                     Sistem Absensi Mahasiswa Magang
@@ -334,6 +364,67 @@ function showLogin() {
             window.scrollTo(0, 0);
         });
     }
+
+    initializeInstallButton();
+}
+
+function initializeInstallButton() {
+    const loginInstallButton =
+        document.getElementById(
+            "installAppButton"
+        );
+    const dashboardInstallButton =
+        document.getElementById(
+            "dashboardInstallButton"
+        );
+    const dashboardInstallCard =
+        document.getElementById(
+            "dashboardInstallCard"
+        );
+
+    if (!deferredInstallPrompt) {
+        if (loginInstallButton) {
+            loginInstallButton.style.display = "none";
+        }
+        if (dashboardInstallCard) {
+            dashboardInstallCard.style.display = "none";
+        }
+        return;
+    }
+
+    if (loginInstallButton) {
+        loginInstallButton.style.display = "block";
+        loginInstallButton.onclick = installApp;
+    }
+
+    if (dashboardInstallCard) {
+        dashboardInstallCard.style.display = "block";
+    }
+
+    if (dashboardInstallButton) {
+        dashboardInstallButton.onclick = installApp;
+    }
+}
+
+async function installApp() {
+    if (!deferredInstallPrompt) {
+        alert("Aplikasi tidak dapat dipasang saat ini.");
+        return;
+    }
+
+    deferredInstallPrompt.prompt();
+
+    const choiceResult =
+        await deferredInstallPrompt.userChoice;
+
+    if (choiceResult.outcome === "accepted") {
+        console.log("Pengguna menerima pemasangan PWA");
+    } else {
+        console.log("Pengguna menolak pemasangan PWA");
+    }
+
+    deferredInstallPrompt = null;
+    initializeInstallButton();
 }
 
 
@@ -478,10 +569,11 @@ async function handleLogin(event) {
                 ? "DAFTAR"
                 : "LOGIN";
 
+        initializeInstallButton();
+
     }
 
 }
-
 
 /* ================================================
    ESCAPE HTML
