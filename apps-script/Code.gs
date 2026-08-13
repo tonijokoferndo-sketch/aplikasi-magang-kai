@@ -1,8 +1,8 @@
 const Config = {
   // MAIN spreadsheet contains 'users' and 'attendance' sheets
-  MAIN_SHEET_ID: ""1Y5j-LGngFz_iguzjSdOejPNJGSmKV-XzdBtD8x2Bpys"",
+  MAIN_SHEET_ID: "1Y5j-LGngFz_iguzjSdOejPNJGSmKV-XzdBtD8x2Bpys",
   // ADMIN spreadsheet (optional) may contain admin users in its first sheet
-  ADMIN_SHEET_ID: ""1Y5j-LGngFz_iguzjSdOejPNJGSmKV-XzdBtD8x2Bpys"",
+  ADMIN_SHEET_ID: "1Y5j-LGngFz_iguzjSdOejPNJGSmKV-XzdBtD8x2Bpys",
 
   getMainSpreadsheet: function() {
     if (!this.MAIN_SHEET_ID) throw new Error('MAIN_SHEET_ID not configured');
@@ -595,4 +595,13 @@ function parseQrPayload(qrCode) {
   parsed.valid = Boolean(parsed.type && parsed.date);
 
   return parsed;
+}
+
+// Simple GET handler for health checks and browser GET requests
+function doGet(e) {
+  try {
+    return Helper.output(Helper.sendResponse(true, "API Absensi KAI - OK"));
+  } catch (err) {
+    return ContentService.createTextOutput(JSON.stringify(Helper.sendResponse(false, 'doGet error: ' + err.toString()))).setMimeType(ContentService.MimeType.JSON);
+  }
 }
