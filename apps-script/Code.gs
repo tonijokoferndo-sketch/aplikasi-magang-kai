@@ -1,34 +1,60 @@
 const Config = {
-  SHEET_ID: "1fd_fdB0nbDydUB2Fia0K6XQxQ2D0HrKrtQHJVpaQxOI",
+  // MAIN spreadsheet contains 'users' and 'attendance' sheets
+  MAIN_SHEET_ID: ""1Y5j-LGngFz_iguzjSdOejPNJGSmKV-XzdBtD8x2Bpys"",
+  // ADMIN spreadsheet (optional) may contain admin users in its first sheet
+  ADMIN_SHEET_ID: ""1Y5j-LGngFz_iguzjSdOejPNJGSmKV-XzdBtD8x2Bpys"",
 
-  getSpreadsheet: function() {
-    return SpreadsheetApp.openById(this.SHEET_ID);
+  getMainSpreadsheet: function() {
+    if (!this.MAIN_SHEET_ID) throw new Error('MAIN_SHEET_ID not configured');
+    return SpreadsheetApp.openById(this.MAIN_SHEET_ID);
+  },
+
+  getAdminSpreadsheet: function() {
+    if (!this.ADMIN_SHEET_ID) return null;
+    try {
+      return SpreadsheetApp.openById(this.ADMIN_SHEET_ID);
+    } catch (e) {
+      return null;
+    }
   },
 
   getUsersSheet: function() {
-    const spreadsheet = this.getSpreadsheet();
-    const sheets = spreadsheet.getSheets();
-
-    if (!sheets || sheets.length === 0) {
-      throw new Error("Spreadsheet tidak memiliki sheet.");
+    // prefer a sheet named 'users' in the main spreadsheet
+    try {
+      const main = this.getMainSpreadsheet();
+      const users = main.getSheetByName('users');
+      if (users) return users;
+    } catch (e) {
+      // ignore and fallback
     }
 
+    // fallback: try admin spreadsheet first sheet
+    const adminSs = this.getAdminSpreadsheet();
+    if (adminSs) {
+      const sheets = adminSs.getSheets();
+      if (sheets && sheets.length > 0) return sheets[0];
+    }
+
+    // last resort: return first sheet of main spreadsheet
+    const main = this.getMainSpreadsheet();
+    const sheets = main.getSheets();
+    if (!sheets || sheets.length === 0) throw new Error('No sheets available in main spreadsheet');
     return sheets[0];
   }
 };
 
 function getQrLogSheet() {
-  const ss = Config.getSpreadsheet();
+  const ss = Config.getMainSpreadsheet();
   let sheet = ss.getSheetByName("qr_log");
   if (!sheet) {
     sheet = ss.insertSheet("qr_log");
-    sheet.appendRow(["id", "payload", "type", "nim", "date", "start", "end", "created_at"]);
+    sheet.appendRow(["id", "payload", "type", "nim", "date", "start", "end", "created_at", "admin_nim"]);
   }
   return sheet;
 }
 
 function getAdminTokensSheet() {
-  const ss = Config.getSpreadsheet();
+  const ss = Config.getMainSpreadsheet();
   let sheet = ss.getSheetByName("admin_tokens");
   if (!sheet) {
     sheet = ss.insertSheet("admin_tokens");
@@ -85,7 +111,7 @@ function revokeAdminToken(token) {
 }
 
 function getAttendanceSheet() {
-  const ss = Config.getSpreadsheet();
+  const ss = Config.getMainSpreadsheet();
   let sheet = ss.getSheetByName("attendance");
   if (!sheet) {
     sheet = ss.insertSheet("attendance");
@@ -135,7 +161,7 @@ function hasAnyAttendance(sheet, nim, date) {
 }
 
 function getAttendanceSummarySheet() {
-  const ss = Config.getSpreadsheet();
+  const ss = Config.getMainSpreadsheet();
   let sheet = ss.getSheetByName("attendance_summary");
   if (!sheet) {
     sheet = ss.insertSheet("attendance_summary");
@@ -309,8 +335,6 @@ const Login = {
       return Helper.sendResponse(false, "Gagal menyimpan absensi: " + error.toString());
     }
   },
-  },
-
 
   handleGenerateQr: function(payload) {
     const { admin_token, type, nim, date, start, end } = payload;
