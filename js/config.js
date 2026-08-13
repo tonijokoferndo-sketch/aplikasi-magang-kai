@@ -18,8 +18,7 @@ const CONFIG = {
     // GOOGLE APPS SCRIPT
     // ============================================
 
-    API_URL:
-"https://script.google.com/macros/s/AKfycby4BPS22eGNDmwLepYMf63J_jDmrpXuumkwAKlcOJT-WSwvks1wNExkOkSJ5c9dTB40lQ/exec",
+    API_URL: "https://script.google.com/macros/s/AKfycbwcX5R30KfvZ_PGYQUR-xmy_1mJdofSb-Izh-o_KbwzcstX6d5LHo0Gy965zruSlzgy/exec",
 
     // ============================================
     // PENGATURAN APLIKASI

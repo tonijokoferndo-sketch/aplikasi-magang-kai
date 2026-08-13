@@ -510,6 +510,69 @@ async function startQRScanner(
 }
 
 
+function getTimeInMinutes() {
+    const now = new Date();
+    return now.getHours() * 60 + now.getMinutes();
+}
+
+function parseQrPayload(qrCode) {
+    if (!qrCode || typeof qrCode !== "string") {
+        return null;
+    }
+
+    const raw = qrCode.trim();
+    const payload = {
+        raw: raw,
+        type: "",
+        nim: "",
+        date: "",
+        valid: false
+    };
+
+    const parts = raw.split("|");
+
+    if (parts.length === 0 || parts[0] !== "KAI_ABSEN") {
+        return null;
+    }
+
+    for (const part of parts) {
+        if (part.includes("=")) {
+            const [key, value] = part.split("=");
+            if (key === "type") {
+                payload.type = String(value).toLowerCase();
+            }
+            if (key === "nim") {
+                payload.nim = String(value);
+            }
+            if (key === "date") {
+                payload.date = String(value);
+            }
+        }
+    }
+
+    payload.valid = Boolean(payload.type);
+
+    return payload;
+}
+
+function isWithinAttendanceWindow(type) {
+    const now = getTimeInMinutes();
+
+    if (type === "masuk") {
+        const min = 7 * 60;
+        const max = 8 * 60;
+        return now >= min && now <= max;
+    }
+
+    if (type === "pulang") {
+        const min = 17 * 60;
+        const max = 18 * 60;
+        return now >= min && now <= max;
+    }
+
+    return false;
+}
+
 /* ================================================
    HASIL SCAN QR
 ================================================ */
@@ -522,6 +585,28 @@ async function handleQRResult(qrCode) {
 
     }
 
+    const payload = parseQrPayload(qrCode);
+
+    if (!payload || !payload.valid) {
+        alert("QR absensi tidak valid.");
+        showDashboard();
+        return;
+    }
+
+    if (!isWithinAttendanceWindow(payload.type)) {
+        const windowLabel = payload.type === "masuk"
+            ? "07:00 - 08:00"
+            : payload.type === "pulang"
+                ? "17:00 - 18:00"
+                : "absensi";
+
+        alert(
+            `Waktu ${payload.type || "absensi"} tidak valid. Jam absensi yang diizinkan adalah ${windowLabel}.`
+        );
+
+        showDashboard();
+        return;
+    }
 
     try {
 

@@ -102,7 +102,7 @@ async function login(nim, password) {
    DAFTAR AKUN BARU
 ================================================ */
 
-async function register(nim, password, nama, divisi) {
+async function register(nim, password, nama, divisi, role) {
 
     if (!nim || !password || !nama) {
 
@@ -158,7 +158,8 @@ async function register(nim, password, nama, divisi) {
                     nim: normalizedNim,
                     password: password,
                     nama: nama,
-                    divisi: divisi || "-"
+                    divisi: divisi || "-",
+                    role: role || "user"
                 }
             );
 

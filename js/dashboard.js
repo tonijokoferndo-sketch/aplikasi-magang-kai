@@ -86,6 +86,9 @@ async function showDashboard() {
                     melakukan absensi masuk atau pulang.
                 </p>
 
+                <div class="qr-preview-wrapper" style="margin-top:12px; margin-bottom:12px;">
+                    <img id="attendanceQrImage" alt="QR Absensi" style="max-width:220px; width:100%; border-radius:12px; display:block; margin:0 auto; background:white; padding:10px;" />
+                </div>
 
                 <button
                     class="btn-primary"
@@ -125,9 +128,46 @@ async function showDashboard() {
 
 
     loadDashboardData();
+    renderAttendanceQr(user);
 
 }
 
+function buildAttendancePayload(type, user) {
+    const today = new Date().toISOString().slice(0, 10);
+
+    return `KAI_ABSEN|nim=${user.nim}|type=${type}|date=${today}`;
+}
+
+function renderAttendanceQr(user) {
+    const img = document.getElementById("attendanceQrImage");
+
+    if (!img || !user) {
+        return;
+    }
+
+    const now = new Date();
+    const currentMinutes = now.getHours() * 60 + now.getMinutes();
+
+    let type = "";
+
+    if (currentMinutes >= 7 * 60 && currentMinutes <= 8 * 60) {
+        type = "masuk";
+    } else if (currentMinutes >= 17 * 60 && currentMinutes <= 18 * 60) {
+        type = "pulang";
+    }
+
+    if (!type) {
+        img.src = "";
+        img.alt = "QR Absensi tidak tersedia di luar jam absensi";
+        return;
+    }
+
+    const payload = buildAttendancePayload(type, user);
+    const url = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(payload)}`;
+
+    img.src = url;
+    img.alt = `QR Absensi ${type}`;
+}
 
 /* ================================================
    DATA DASHBOARD
