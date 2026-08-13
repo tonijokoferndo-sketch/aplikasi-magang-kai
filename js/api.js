@@ -56,11 +56,21 @@ async function apiRequest(action, data = {}) {
             const status = response.status;
             const statusText = response.statusText;
             const text = await response.text();
+            const text = await response.text();
 
             if (!response.ok) {
                 // Return server body as message to help debugging (may be HTML or JSON)
                 let parsed = null;
                 try { parsed = JSON.parse(text); } catch (e) { parsed = null; }
+                // detect HTML response (Google Sign-in, error pages)
+                if (!parsed && text && text.trim().startsWith("<")) {
+                    return {
+                        status: false,
+                        message: "Server returned HTML (possible sign-in/permission error).",
+                        raw: text
+                    };
+                }
+
                 return {
                     status: false,
                     message: parsed?.message || (`HTTP ${status} ${statusText}: ` + (text ? text.slice(0, 200) : 'no body')),

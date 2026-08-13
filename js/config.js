@@ -14,16 +14,14 @@ const CONFIG = {
     COMPANY_NAME: "PT KAI Divre II Sumbar",
 
 
-    // ============================================
-    // GOOGLE APPS SCRIPT
-    // ============================================
+    
 
     API_URL: "https://script.google.com/macros/s/AKfycbwcX5R30KfvZ_PGYQUR-xmy_1mJdofSb-Izh-o_KbwzcstX6d5LHo0Gy965zruSlzgy/exec",
 
     // ============================================
     // PENGATURAN APLIKASI
     // ============================================
-APP_NAME: "Absensi Magang KAI",
+
     VERSION: "1.0.0",
 
     DEBUG: true
