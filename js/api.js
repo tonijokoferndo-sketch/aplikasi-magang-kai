@@ -52,42 +52,39 @@ async function apiRequest(action, data = {}) {
             );
 
 
+
+            const status = response.status;
+            const statusText = response.statusText;
+            const text = await response.text();
+
             if (!response.ok) {
-
-                continue;
-
+                // Return server body as message to help debugging (may be HTML or JSON)
+                let parsed = null;
+                try { parsed = JSON.parse(text); } catch (e) { parsed = null; }
+                return {
+                    status: false,
+                    message: parsed?.message || (`HTTP ${status} ${statusText}: ` + (text ? text.slice(0, 200) : 'no body')),
+                    raw: text
+                };
             }
 
+            // Read response text (successful)
 
-            const text =
-                await response.text();
+            
 
 
             let result = null;
 
 
+
             if (text) {
-
                 try {
-
                     result = JSON.parse(text);
-
                 } catch (error) {
-
-                    result = {
-                        status: true,
-                        message: text
-                    };
-
+                    result = { status: true, message: text };
                 }
-
             } else {
-
-                result = {
-                    status: true,
-                    message: "OK"
-                };
-
+                result = { status: true, message: "OK" };
             }
 
 
