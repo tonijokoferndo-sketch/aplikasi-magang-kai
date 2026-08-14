@@ -1,353 +1,243 @@
-/***************************************************
- * AUTH.JS
- * Login dan autentikasi mahasiswa
- ***************************************************/
+const Auth = {
+
+    currentUser: null,
 
 
-/* ================================================
-   LOGIN
-================================================ */
+    // =====================================
+    // INIT
+    // =====================================
 
-async function login(nim, password) {
+    init: function () {
 
-    /* Validasi input */
-
-    if (!nim || !password) {
-
-        return {
-
-            status: false,
-
-            message:
-                "NIM dan Password wajib diisi."
-
-        };
-
-    }
+        const savedUser =
+            localStorage.getItem(
+                "absensi_user"
+            );
 
 
-    const normalizedNim =
-        String(nim).trim();
+        if (savedUser) {
+
+            try {
+
+                this.currentUser =
+                    JSON.parse(savedUser);
+
+            } catch (error) {
+
+                console.error(
+                    "[AUTH] Session rusak"
+                );
+
+                localStorage.removeItem(
+                    "absensi_user"
+                );
+
+            }
+
+        }
+
+    },
 
 
-    try {
+    // =====================================
+    // LOGIN
+    // =====================================
 
-        /* Kirim request ke Google Apps Script */
+    login: async function (
+        nim,
+        password
+    ) {
+
+        if (!nim || !password) {
+
+            return {
+
+                status: false,
+
+                message:
+                    "NIM dan password wajib diisi."
+
+            };
+
+        }
+
 
         const result =
             await apiRequest(
-
                 "login",
-
                 {
-
-                    nim: normalizedNim,
-
+                    nim: nim,
                     password: password
-
                 }
-
             );
 
 
-        if (result && result.status) {
+        console.log(
+            "[AUTH] LOGIN:",
+            result
+        );
 
-            localStorage.setItem(
 
-                "user",
-
-                JSON.stringify(
-                    result.user
-                )
-
-            );
+        if (!result.status) {
 
             return result;
 
         }
 
-        return {
 
-            status: false,
-
-            message:
-                result?.message ||
-                "Login gagal. Pastikan akun Anda dibuat melalui server absensi yang sama."
-
-        };
+        const user =
+            result.user;
 
 
-    } catch (error) {
+        if (!user) {
 
-        console.error(
-            "Login error:",
-            error
-        );
+            return {
 
-        return {
+                status: false,
 
-            status: false,
+                message:
+                    "Data user tidak ditemukan."
 
-            message:
-                "Tidak dapat terhubung ke server absensi. Pastikan API aktif dan jaringan tersedia."
+            };
 
-        };
-
-    }
-
-}
+        }
 
 
-/* ================================================
-   DAFTAR AKUN BARU
-================================================ */
+        /*
+         * Normalisasi role
+         */
 
-async function register(nim, password, nama, divisi, role) {
-
-    if (!nim || !password || !nama) {
-
-        return {
-
-            status: false,
-
-            message:
-                "NIM, Nama, dan Password wajib diisi."
-
-        };
-
-    }
+        let role =
+            String(
+                user.role || "user"
+            )
+            .trim()
+            .toLowerCase();
 
 
-    const normalizedNim =
-        String(nim).trim();
+        if (
+            role !== "admin" &&
+            role !== "user"
+        ) {
+
+            role = "user";
+
+        }
 
 
-    const users =
-        getRegisteredUsers();
+        user.role = role;
 
 
-    const existingUser =
-        users.find(
-            (user) =>
-                String(user.nim)
-                    .toLowerCase() ===
-                normalizedNim.toLowerCase()
+        this.currentUser =
+            user;
+
+
+        localStorage.setItem(
+            "absensi_user",
+            JSON.stringify(user)
         );
 
 
-    if (existingUser) {
-
         return {
 
-            status: false,
+            status: true,
 
             message:
-                "NIM sudah terdaftar. Silakan login."
+                result.message ||
+                "Login berhasil.",
+
+            user: user
 
         };
 
-    }
+    },
 
 
-    try {
+    // =====================================
+    // REGISTER
+    // =====================================
+
+    register: async function (data) {
 
         const result =
             await apiRequest(
                 "register",
-                {
-                    nim: normalizedNim,
-                    password: password,
-                    nama: nama,
-                    divisi: divisi || "-",
-                    role: role || "user"
-                }
+                data
             );
 
 
-        if (result && result.status) {
-
-            const userData =
-                result.user || {
-                    nim: normalizedNim,
-                    nama: nama,
-                    divisi: divisi || "-"
-                };
-
-
-            localStorage.setItem(
-                "user",
-                JSON.stringify(userData)
-            );
-
-
-            return result;
-
-        }
-
-        return {
-
-            status: false,
-
-            message:
-                result?.message ||
-                "Pendaftaran gagal. Server absensi tidak menerima akun ini."
-
-        };
-
-    } catch (error) {
-
-        console.error(
-            "Register error:",
-            error
-        );
-
-        return {
-
-            status: false,
-
-            message:
-                "Tidak dapat terhubung ke server absensi untuk mendaftarkan akun."
-
-        };
-
-    }
-
-}
-
-
-/* ================================================
-   DATA USER LOKAL
-================================================ */
-
-function getRegisteredUsers() {
-
-    const users =
-        localStorage.getItem(
-            "registeredUsers"
+        console.log(
+            "[AUTH] REGISTER:",
+            result
         );
 
 
-    if (!users) {
+        return result;
 
-        return [];
-
-    }
+    },
 
 
-    try {
+    // =====================================
+    // LOGOUT
+    // =====================================
 
-        return JSON.parse(users);
+    logout: function () {
 
-    } catch (error) {
-
-        console.error(
-            "Data user lokal rusak:",
-            error
-        );
-
-        return [];
-
-    }
-
-}
-
-
-function saveRegisteredUsers(users) {
-
-    localStorage.setItem(
-        "registeredUsers",
-        JSON.stringify(users)
-    );
-
-}
-
-
-function findLocalUser(nim, password) {
-
-    const users =
-        getRegisteredUsers();
-
-
-    return users.find(
-        (user) =>
-            String(user.nim)
-                .toLowerCase() ===
-            String(nim).toLowerCase() &&
-            String(user.password) ===
-            String(password)
-    );
-
-}
-
-
-/* ================================================
-   MENGAMBIL DATA USER
-================================================ */
-
-function getUser() {
-
-    const user =
-        localStorage.getItem(
-            "user"
-        );
-
-
-    if (!user) {
-
-        return null;
-
-    }
-
-
-    try {
-
-        return JSON.parse(
-            user
-        );
-
-    } catch (error) {
-
-        console.error(
-            "Data user rusak:",
-            error
-        );
+        this.currentUser = null;
 
 
         localStorage.removeItem(
-            "user"
+            "absensi_user"
         );
 
 
-        return null;
+        location.reload();
+
+    },
+
+
+    // =====================================
+    // GET USER
+    // =====================================
+
+    getUser: function () {
+
+        return this.currentUser;
+
+    },
+
+
+    // =====================================
+    // IS LOGIN
+    // =====================================
+
+    isLoggedIn: function () {
+
+        return Boolean(
+            this.currentUser
+        );
+
+    },
+
+
+    // =====================================
+    // IS ADMIN
+    // =====================================
+
+    isAdmin: function () {
+
+        return (
+            this.currentUser &&
+            String(
+                this.currentUser.role
+            )
+            .toLowerCase() ===
+            "admin"
+        );
 
     }
 
-}
+};
 
 
-/* ================================================
-   CEK STATUS LOGIN
-================================================ */
-
-function isLoggedIn() {
-
-    return getUser() !== null;
-
-}
-
-
-/* ================================================
-   LOGOUT
-================================================ */
-
-function logout() {
-
-    localStorage.removeItem(
-        "user"
-    );
-
-
-    window.location.href =
-        "index.html";
-
-}
+Auth.init();

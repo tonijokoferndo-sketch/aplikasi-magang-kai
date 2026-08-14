@@ -3,67 +3,32 @@
 
 <head>
 
-    <!-- =========================================
-         META
-    ========================================== -->
-
     <meta charset="UTF-8">
 
     <meta name="viewport"
-          content="width=device-width, initial-scale=1.0">
-
-    <meta name="description"
-          content="Aplikasi Absensi Magang PT KAI Divre II Sumbar">
+          content="width=device-width, initial-scale=1.0,
+                   maximum-scale=1.0,
+                   user-scalable=no">
 
     <meta name="theme-color"
           content="#0F4C81">
 
-    <meta name="mobile-web-app-capable"
-          content="yes">
-
-    <meta name="apple-mobile-web-app-capable"
-          content="yes">
-
-    <meta name="apple-mobile-web-app-status-bar-style"
-          content="default">
-
-    <meta name="apple-mobile-web-app-title"
-          content="Absensi KAI">
-
-
-    <!-- =========================================
-         TITLE
-    ========================================== -->
+    <meta name="description"
+          content="Aplikasi Absensi Magang PT KAI Divre II Sumbar">
 
     <title>Absensi Magang KAI</title>
 
 
-    <!-- =========================================
-         CSS
-    ========================================== -->
-
+    <!-- CSS -->
     <link rel="stylesheet"
           href="./css/style.css">
 
 
-    <!-- =========================================
-         PWA
-    ========================================== -->
-
-    <link rel="manifest"
-          href="./manifest.json">
-
-
-    <!-- =========================================
-         ICON
-    ========================================== -->
-
+    <!-- Icon -->
     <link rel="icon"
           type="image/png"
           href="./assets/icon-192.png">
 
-    <link rel="apple-touch-icon"
-          href="./assets/icon-192.png">
 
 </head>
 
@@ -71,9 +36,9 @@
 <body>
 
 
-    <!-- =========================================
-         LOADING SCREEN
-    ========================================== -->
+    <!-- =====================================
+         LOADING
+    ====================================== -->
 
     <div id="loadingScreen">
 
@@ -83,13 +48,9 @@
                 KAI
             </div>
 
-            <h2>
-                Absensi Magang
-            </h2>
+            <h2>Absensi Magang</h2>
 
-            <p>
-                PT KAI Divre II Sumbar
-            </p>
+            <p>PT KAI Divre II Sumbar</p>
 
             <div class="loading-spinner"></div>
 
@@ -98,147 +59,112 @@
     </div>
 
 
-    <!-- =========================================
-         APLIKASI
-    ========================================== -->
+    <!-- =====================================
+         APPLICATION
+    ====================================== -->
 
-    <main id="app">
-
-        <!--
-            Login
-            Register
-            Dashboard
-            Scanner
-            Riwayat
-
-            Semua tampilan dibuat oleh app.js
-        -->
-
-    </main>
+    <main id="app"></main>
 
 
-    <!-- =========================================
+    <!-- =====================================
          JAVASCRIPT
-    ========================================== -->
+    ====================================== -->
 
-    <!-- Konfigurasi -->
     <script src="./js/config.js"></script>
 
-    <!-- API Google Apps Script -->
     <script src="./js/api.js"></script>
 
-    <!-- Authentication -->
     <script src="./js/auth.js"></script>
 
-    <!-- Dashboard -->
     <script src="./js/dashboard.js"></script>
 
-    <!-- QR Scanner -->
     <script src="./assets/lib/html5-qrcode.min.js"></script>
 
-    <!-- Scanner aplikasi -->
     <script src="./js/scanner.js"></script>
 
-    <!-- Aplikasi utama -->
     <script src="./js/app.js"></script>
 
 
-    <!-- =========================================
-         QR SCANNER READY CHECK
-    ========================================== -->
+    <!-- =====================================
+         REMOVE OLD SERVICE WORKER
+    ====================================== -->
 
     <script>
 
-        window.Html5QrcodeReady = false;
+        window.addEventListener("load", async function () {
 
+            /*
+             * Untuk sementara Service Worker
+             * dimatikan agar HP tidak memakai
+             * file/cache versi lama.
+             */
 
-        function checkQrScanner() {
+            if ("serviceWorker" in navigator) {
 
-            if (
-                typeof Html5Qrcode !==
-                "undefined"
-            ) {
+                try {
 
-                window.Html5QrcodeReady = true;
+                    const registrations =
+                        await navigator.serviceWorker.getRegistrations();
 
-                console.log(
-                    "[APP] Html5Qrcode siap digunakan."
-                );
+                    for (const registration of registrations) {
 
-                return true;
+                        await registration.unregister();
 
-            }
-
-
-            console.warn(
-                "[APP] Html5Qrcode belum tersedia."
-            );
-
-            return false;
-
-        }
-
-
-        // Cek setelah library dimuat
-        checkQrScanner();
-
-
-        // Cek kembali setelah halaman selesai dimuat
-        window.addEventListener(
-            "load",
-            function () {
-
-                checkQrScanner();
-
-            }
-        );
-
-    </script>
-
-
-    <!-- =========================================
-         SERVICE WORKER
-    ========================================== -->
-
-    <script>
-
-        if (
-            "serviceWorker" in navigator
-        ) {
-
-            window.addEventListener(
-                "load",
-                function () {
-
-                    navigator.serviceWorker
-                        .register("./sw.js")
-                        .then(
-                            function (registration) {
-
-                                console.log(
-                                    "[SW] Service Worker berhasil:",
-                                    registration.scope
-                                );
-
-                            }
-                        )
-                        .catch(
-                            function (error) {
-
-                                console.error(
-                                    "[SW] Service Worker gagal:",
-                                    error
-                                );
-
-                            }
+                        console.log(
+                            "[SW] Service Worker lama dihapus"
                         );
 
-                }
-            );
+                    }
 
-        }
+                } catch (error) {
+
+                    console.warn(
+                        "[SW] Tidak dapat menghapus Service Worker:",
+                        error
+                    );
+
+                }
+
+            }
+
+
+            /*
+             * Bersihkan cache browser
+             * jika Cache API tersedia.
+             */
+
+            if ("caches" in window) {
+
+                try {
+
+                    const cacheNames =
+                        await caches.keys();
+
+                    for (const cacheName of cacheNames) {
+
+                        await caches.delete(cacheName);
+
+                    }
+
+                    console.log(
+                        "[CACHE] Cache lama dibersihkan"
+                    );
+
+                } catch (error) {
+
+                    console.warn(
+                        "[CACHE] Gagal membersihkan cache:",
+                        error
+                    );
+
+                }
+
+            }
+
+        });
 
     </script>
+
 
 </body>
 

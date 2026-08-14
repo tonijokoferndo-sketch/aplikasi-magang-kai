@@ -5,8 +5,18 @@ async function apiRequest(action, data = {}) {
         ...data
     };
 
-    console.log("[API] REQUEST:", payload);
-    console.log("[API] URL:", CONFIG.API_URL);
+
+    console.log(
+        "[API] REQUEST:",
+        payload
+    );
+
+
+    console.log(
+        "[API] URL:",
+        CONFIG.API_URL
+    );
+
 
     try {
 
@@ -16,22 +26,30 @@ async function apiRequest(action, data = {}) {
                 method: "POST",
 
                 headers: {
-                    "Content-Type": "text/plain;charset=utf-8"
+                    "Content-Type":
+                        "text/plain;charset=utf-8"
                 },
 
-                body: JSON.stringify(payload)
+                body:
+                    JSON.stringify(payload),
+
+                redirect: "follow"
             }
         );
 
-        const text = await response.text();
 
         console.log(
-            "[API] HTTP STATUS:",
+            "[API] STATUS:",
             response.status
         );
 
+
+        const text =
+            await response.text();
+
+
         console.log(
-            "[API] RESPONSE:",
+            "[API] RAW RESPONSE:",
             text
         );
 
@@ -39,13 +57,15 @@ async function apiRequest(action, data = {}) {
         if (!response.ok) {
 
             return {
+
                 status: false,
+
                 message:
                     "HTTP " +
-                    response.status +
-                    ": " +
-                    response.statusText,
+                    response.status,
+
                 raw: text
+
             };
 
         }
@@ -53,25 +73,38 @@ async function apiRequest(action, data = {}) {
 
         let result;
 
+
         try {
 
-            result = JSON.parse(text);
+            result =
+                JSON.parse(text);
 
         } catch (error) {
 
             console.error(
-                "[API] Response bukan JSON:",
-                text
+                "[API] JSON ERROR:",
+                error
             );
 
+
             return {
+
                 status: false,
+
                 message:
                     "Server tidak mengirim JSON.",
+
                 raw: text
+
             };
 
         }
+
+
+        console.log(
+            "[API] RESULT:",
+            result
+        );
 
 
         return result;
@@ -80,15 +113,21 @@ async function apiRequest(action, data = {}) {
     } catch (error) {
 
         console.error(
-            "[API] CONNECTION ERROR:",
+            "[API] FETCH ERROR:",
             error
         );
 
+
         return {
+
             status: false,
+
             message:
-                "Tidak dapat terhubung ke server Google Apps Script.",
-            error: error.message
+                "Tidak dapat terhubung ke server.",
+
+            error:
+                error.message
+
         };
 
     }
