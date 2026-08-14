@@ -1,3 +1,10 @@
+/**
+ * =========================================================
+ * API.JS
+ * Koneksi Frontend → Cloudflare Worker
+ * =========================================================
+ */
+
 async function apiRequest(action, data = {}) {
 
     const payload = {
@@ -11,7 +18,6 @@ async function apiRequest(action, data = {}) {
         payload
     );
 
-
     console.log(
         "[API] URL:",
         CONFIG.API_URL
@@ -20,26 +26,25 @@ async function apiRequest(action, data = {}) {
 
     try {
 
-        const response = await fetch(
-            CONFIG.API_URL,
-            {
-                method: "POST",
+        const response =
+            await fetch(
+                CONFIG.API_URL,
+                {
+                    method: "POST",
 
-                headers: {
-                    "Content-Type":
-                        "text/plain;charset=utf-8"
-                },
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    },
 
-                body:
-                    JSON.stringify(payload),
-
-                redirect: "follow"
-            }
-        );
+                    body:
+                        JSON.stringify(payload)
+                }
+            );
 
 
         console.log(
-            "[API] STATUS:",
+            "[API] HTTP STATUS:",
             response.status
         );
 
@@ -54,25 +59,7 @@ async function apiRequest(action, data = {}) {
         );
 
 
-        if (!response.ok) {
-
-            return {
-
-                status: false,
-
-                message:
-                    "HTTP " +
-                    response.status,
-
-                raw: text
-
-            };
-
-        }
-
-
         let result;
-
 
         try {
 
@@ -82,17 +69,16 @@ async function apiRequest(action, data = {}) {
         } catch (error) {
 
             console.error(
-                "[API] JSON ERROR:",
-                error
+                "[API] RESPONSE BUKAN JSON:",
+                text
             );
-
 
             return {
 
                 status: false,
 
                 message:
-                    "Server tidak mengirim JSON.",
+                    "Server tidak mengirim response JSON.",
 
                 raw: text
 
@@ -102,7 +88,7 @@ async function apiRequest(action, data = {}) {
 
 
         console.log(
-            "[API] RESULT:",
+            "[API] RESPONSE:",
             result
         );
 
