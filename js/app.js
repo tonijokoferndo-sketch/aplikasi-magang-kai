@@ -74,20 +74,26 @@ function startApp() {
              * Cek apakah user sudah login
              */
 
-            if (isLoggedIn()) {
-                const user = getUser();
-                if (user && user.role && String(user.role).toLowerCase() === 'admin') {
-                    showAdmin();
-                    return;
-                }
-                showDashboard();
+           if (user) {
 
-            } else {
+             if (
+               String(user.role || "").toLowerCase() === "admin"
+                 ) {
 
-                // show initial role choice (User or Admin)
-                showRoleChoice();
+                      showAdmin();
 
-            }
+                     } else {
+
+                         showDashboard();
+
+                     }  
+
+                        } else {
+
+                            showLogin();
+                                }
+
+            
 
         },
 
@@ -457,7 +463,7 @@ function showLogin() {
                         const user = JSON.parse(localStorage.getItem('user') || '{}');
                         setTimeout(function() {
                             if (user && user.role && String(user.role).toLowerCase() === 'admin') {
-                                window.location.href = 'admin.html';
+                                showAdmin();
                             } else {
                                 showDashboard();
                             }

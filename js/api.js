@@ -1,131 +1,107 @@
-async function apiRequest(action, data = {}) {
+function apiRequest(action, data = {}) {
 
-    const payload = {
+    return new Promise((resolve, reject) => {
 
-        action: action,
-
-        ...data
-
-    };
-
-
-    const requestBody =
-        JSON.stringify(payload);
+        console.log("API REQUEST:", {
+            action,
+            ...data
+        });
 
 
-    const attempts = [
+        // =====================================
+        // LOGIN
+        // =====================================
 
-        {
-            headers: {
-                "Content-Type": "application/json",
-                "Accept": "application/json"
-            }
-        },
+        if (action === "login") {
 
-        {
-            headers: {
-                "Content-Type": "text/plain;charset=utf-8",
-                "Accept": "application/json"
-            }
+            google.script.run
+
+                .withSuccessHandler(function(response) {
+
+                    console.log(
+                        "LOGIN RESPONSE:",
+                        response
+                    );
+
+                    resolve(response);
+
+                })
+
+                .withFailureHandler(function(error) {
+
+                    console.error(
+                        "LOGIN ERROR:",
+                        error
+                    );
+
+                    reject(error);
+
+                })
+
+                .loginUser(
+                    data.nim,
+                    data.password
+                );
+
+            return;
         }
 
-    ];
 
+        // =====================================
+        // REGISTER
+        // =====================================
 
-    console.log(
-        "API REQUEST:",
-        payload
-    );
+        if (action === "register") {
 
+            google.script.run
 
-    for (const attempt of attempts) {
+                .withSuccessHandler(function(response) {
 
-        try {
+                    console.log(
+                        "REGISTER RESPONSE:",
+                        response
+                    );
 
-            const response = await fetch(
-                CONFIG.API_URL,
-                {
-                    method: "POST",
-                    headers: attempt.headers,
-                    body: requestBody
-                }
-            );
+                    resolve(response);
 
+                })
 
+                .withFailureHandler(function(error) {
 
-            const status = response.status;
-            const statusText = response.statusText;
-            const text = await response.text();
-            const text = await response.text();
+                    console.error(
+                        "REGISTER ERROR:",
+                        error
+                    );
 
-            if (!response.ok) {
-                // Return server body as message to help debugging (may be HTML or JSON)
-                let parsed = null;
-                try { parsed = JSON.parse(text); } catch (e) { parsed = null; }
-                // detect HTML response (Google Sign-in, error pages)
-                if (!parsed && text && text.trim().startsWith("<")) {
-                    return {
-                        status: false,
-                        message: "Server returned HTML (possible sign-in/permission error).",
-                        raw: text
-                    };
-                }
+                    reject(error);
 
-                return {
-                    status: false,
-                    message: parsed?.message || (`HTTP ${status} ${statusText}: ` + (text ? text.slice(0, 200) : 'no body')),
-                    raw: text
-                };
-            }
+                })
 
-            // Read response text (successful)
+                .registerUser(
 
-            
+                    data.nim,
 
+                    data.nama,
 
-            let result = null;
+                    data.divisi,
 
+                    data.password,
 
+                    data.role
 
-            if (text) {
-                try {
-                    result = JSON.parse(text);
-                } catch (error) {
-                    result = { status: true, message: text };
-                }
-            } else {
-                result = { status: true, message: "OK" };
-            }
+                );
 
-
-            console.log(
-                "API RESPONSE:",
-                result
-            );
-
-
-            return result;
-
-
-        } catch (error) {
-
-            console.error(
-                "API ERROR:",
-                error
-            );
-
+            return;
         }
 
-    }
 
+        reject(
+            new Error(
+                "Action tidak didukung: " +
+                action
+            )
+        );
 
-    return {
-
-        status: false,
-
-        message:
-            "Tidak dapat terhubung ke server."
-
-    };
+    });
 
 }

@@ -238,7 +238,7 @@ const Helper = {
         email: row[2] || "",
         divisi: row[3] || row[5] || "",
         password: row[4] || "",
-        role: (row[7] || row[6] || "user")
+        role: String(row[7] || "user").trim().toLowerCase()
       };
     }
 

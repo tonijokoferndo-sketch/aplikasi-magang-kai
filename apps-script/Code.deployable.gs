@@ -22,6 +22,29 @@ const Config = {
     }
   },
 
+  usersSheet.appendRow([
+    nim,
+    nama,
+    email,
+    divisi || "",
+    password,
+    divisi || "",
+    tglDaftar,
+    selectedRole
+]);
+
+return Helper.sendResponse(
+    true,
+    "Pendaftaran berhasil",
+    {
+        user: {
+            nim: nim,
+            nama: nama,
+            divisi: divisi || "",
+            role: selectedRole
+        }
+    }
+);
   getUsersSheet: function() {
     // prefer a sheet named 'users' in the main spreadsheet
     try {
@@ -451,7 +474,15 @@ const Login = {
   },
   handleRegister: function(payload) {
     const { nim, password, nama, divisi, role } = payload;
+    const selectedRole =
+    String(role || "user").trim().toLowerCase();
 
+if (!["user", "admin"].includes(selectedRole)) {
+    return Helper.sendResponse(
+        false,
+        "Role tidak valid"
+    );
+}
     if (!nim || !password || !nama) {
       return Helper.sendResponse(false, "NIM, Nama, dan Password wajib diisi");
 
