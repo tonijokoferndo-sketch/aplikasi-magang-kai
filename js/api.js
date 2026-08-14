@@ -1,107 +1,96 @@
-function apiRequest(action, data = {}) {
+async function apiRequest(action, data = {}) {
 
-    return new Promise((resolve, reject) => {
+    const payload = {
+        action: action,
+        ...data
+    };
 
-        console.log("API REQUEST:", {
-            action,
-            ...data
-        });
+    console.log("[API] REQUEST:", payload);
+    console.log("[API] URL:", CONFIG.API_URL);
 
+    try {
 
-        // =====================================
-        // LOGIN
-        // =====================================
+        const response = await fetch(
+            CONFIG.API_URL,
+            {
+                method: "POST",
 
-        if (action === "login") {
+                headers: {
+                    "Content-Type": "text/plain;charset=utf-8"
+                },
 
-            google.script.run
-
-                .withSuccessHandler(function(response) {
-
-                    console.log(
-                        "LOGIN RESPONSE:",
-                        response
-                    );
-
-                    resolve(response);
-
-                })
-
-                .withFailureHandler(function(error) {
-
-                    console.error(
-                        "LOGIN ERROR:",
-                        error
-                    );
-
-                    reject(error);
-
-                })
-
-                .loginUser(
-                    data.nim,
-                    data.password
-                );
-
-            return;
-        }
-
-
-        // =====================================
-        // REGISTER
-        // =====================================
-
-        if (action === "register") {
-
-            google.script.run
-
-                .withSuccessHandler(function(response) {
-
-                    console.log(
-                        "REGISTER RESPONSE:",
-                        response
-                    );
-
-                    resolve(response);
-
-                })
-
-                .withFailureHandler(function(error) {
-
-                    console.error(
-                        "REGISTER ERROR:",
-                        error
-                    );
-
-                    reject(error);
-
-                })
-
-                .registerUser(
-
-                    data.nim,
-
-                    data.nama,
-
-                    data.divisi,
-
-                    data.password,
-
-                    data.role
-
-                );
-
-            return;
-        }
-
-
-        reject(
-            new Error(
-                "Action tidak didukung: " +
-                action
-            )
+                body: JSON.stringify(payload)
+            }
         );
 
-    });
+        const text = await response.text();
+
+        console.log(
+            "[API] HTTP STATUS:",
+            response.status
+        );
+
+        console.log(
+            "[API] RESPONSE:",
+            text
+        );
+
+
+        if (!response.ok) {
+
+            return {
+                status: false,
+                message:
+                    "HTTP " +
+                    response.status +
+                    ": " +
+                    response.statusText,
+                raw: text
+            };
+
+        }
+
+
+        let result;
+
+        try {
+
+            result = JSON.parse(text);
+
+        } catch (error) {
+
+            console.error(
+                "[API] Response bukan JSON:",
+                text
+            );
+
+            return {
+                status: false,
+                message:
+                    "Server tidak mengirim JSON.",
+                raw: text
+            };
+
+        }
+
+
+        return result;
+
+
+    } catch (error) {
+
+        console.error(
+            "[API] CONNECTION ERROR:",
+            error
+        );
+
+        return {
+            status: false,
+            message:
+                "Tidak dapat terhubung ke server Google Apps Script.",
+            error: error.message
+        };
+
+    }
 
 }

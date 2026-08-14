@@ -43,15 +43,15 @@
     ========================================== -->
 
     <link rel="stylesheet"
-          href="css/style.css">
+          href="./css/style.css">
 
 
     <!-- =========================================
          PWA
     ========================================== -->
 
-    <!-- <link rel="manifest"
-          href="manifest.json"> -->
+    <link rel="manifest"
+          href="./manifest.json">
 
 
     <!-- =========================================
@@ -60,7 +60,10 @@
 
     <link rel="icon"
           type="image/png"
-          href="assets/icon-192.png">
+          href="./assets/icon-192.png">
+
+    <link rel="apple-touch-icon"
+          href="./assets/icon-192.png">
 
 </head>
 
@@ -97,15 +100,18 @@
 
     <!-- =========================================
          APLIKASI
-         
-         Semua tampilan akan dibuat oleh app.js
     ========================================== -->
 
     <main id="app">
 
         <!--
-            Login / Dashboard / Scanner /
-            Riwayat akan dimasukkan di sini
+            Login
+            Register
+            Dashboard
+            Scanner
+            Riwayat
+
+            Semua tampilan dibuat oleh app.js
         -->
 
     </main>
@@ -116,53 +122,89 @@
     ========================================== -->
 
     <!-- Konfigurasi -->
-    <script src="js/config.js"></script>
+    <script src="./js/config.js"></script>
 
     <!-- API Google Apps Script -->
-    <script src="js/api.js"></script>
+    <script src="./js/api.js"></script>
 
     <!-- Authentication -->
-    <script src="js/auth.js"></script>
+    <script src="./js/auth.js"></script>
 
     <!-- Dashboard -->
-    <script src="js/dashboard.js"></script>
+    <script src="./js/dashboard.js"></script>
 
-    <!-- Library QR Scanner (Local) -->
-    <script src="assets/lib/html5-qrcode.min.js"
-            type="text/javascript"></script>
-
-    <!-- Flag ketika library siap -->
-    <script>
-        window.Html5QrcodeReady = false;
-        
-        // Set ready flag when library loads
-        if (typeof Html5Qrcode !== 'undefined') {
-            window.Html5QrcodeReady = true;
-            console.log("[APP] Html5Qrcode immediately available");
-        }
-        
-        window.addEventListener('load', function() {
-            if (typeof Html5Qrcode !== 'undefined') {
-                window.Html5QrcodeReady = true;
-                console.log("[APP] Html5Qrcode ready after window load");
-            }
-        });
-    </script>
+    <!-- QR Scanner -->
+    <script src="./assets/lib/html5-qrcode.min.js"></script>
 
     <!-- Scanner aplikasi -->
-    <script src="js/scanner.js"></script>
+    <script src="./js/scanner.js"></script>
 
     <!-- Aplikasi utama -->
-    <script src="js/app.js"></script>
+    <script src="./js/app.js"></script>
+
+
+    <!-- =========================================
+         QR SCANNER READY CHECK
+    ========================================== -->
+
+    <script>
+
+        window.Html5QrcodeReady = false;
+
+
+        function checkQrScanner() {
+
+            if (
+                typeof Html5Qrcode !==
+                "undefined"
+            ) {
+
+                window.Html5QrcodeReady = true;
+
+                console.log(
+                    "[APP] Html5Qrcode siap digunakan."
+                );
+
+                return true;
+
+            }
+
+
+            console.warn(
+                "[APP] Html5Qrcode belum tersedia."
+            );
+
+            return false;
+
+        }
+
+
+        // Cek setelah library dimuat
+        checkQrScanner();
+
+
+        // Cek kembali setelah halaman selesai dimuat
+        window.addEventListener(
+            "load",
+            function () {
+
+                checkQrScanner();
+
+            }
+        );
+
+    </script>
 
 
     <!-- =========================================
          SERVICE WORKER
     ========================================== -->
 
-    <!-- <script>
+    <script>
 
-        if ("serviceWorker" in navigator) {
+        if (
+            "serviceWorker" in navigator
+        ) {
 
             window.addEventListener(
                 "load",
@@ -170,29 +212,33 @@
 
                     navigator.serviceWorker
                         .register("./sw.js")
-                        .then(function (registration) {
+                        .then(
+                            function (registration) {
 
-                            console.log(
-                                "Service Worker berhasil:",
-                                registration.scope
-                            );
+                                console.log(
+                                    "[SW] Service Worker berhasil:",
+                                    registration.scope
+                                );
 
-                        })
-                        .catch(function (error) {
+                            }
+                        )
+                        .catch(
+                            function (error) {
 
-                            console.error(
-                                "Service Worker gagal:",
-                                error
-                            );
+                                console.error(
+                                    "[SW] Service Worker gagal:",
+                                    error
+                                );
 
-                        });
+                            }
+                        );
 
                 }
             );
 
         }
 
-    </script> -->
+    </script>
 
 </body>
 
